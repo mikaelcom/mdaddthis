@@ -13,5 +13,15 @@ $content = addThis::instance()->modify($tpl,'display_addthis',$operatorParameter
  * Pas de pagelayout
  */
 $Result['pagelayout'] = false;
-echo class_exists('JSMin',true)?JSMin::minify($content):$content;
+if(class_exists('JSMin',true))
+	$content = JSMin::minify($content);
+else
+{
+	$ezjscINI = eZINI::instance('ezjscore.ini');
+	foreach($ezjscINI->variable('eZJSCore','JavaScriptOptimizer') as $optimizer)
+		$content = call_user_func(array(
+										$optimizer,
+										'optimize'),$content,3);
+}
+$Result['content'] = $content;
 ?>
